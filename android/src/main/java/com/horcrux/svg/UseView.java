@@ -79,7 +79,7 @@ class UseView extends RenderableView {
             ((RenderableView)template).mergeProperties(this);
         }
 
-        int count = template.saveAndSetupCanvas(canvas, mCTM);
+        int count = template.saveAndSetupCanvas(canvas);
         clip(canvas, paint);
 
         if (template instanceof SymbolView) {

@@ -110,9 +110,6 @@
 
 - (void)renderLayerTo:(CGContextRef)context rect:(CGRect)rect
 {
-    if (CGSizeEqualToSize(CGSizeZero, _imageSize)) {
-        return;
-    }
     CGContextSaveGState(context);
 
     // add hit area

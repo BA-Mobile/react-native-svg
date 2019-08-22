@@ -95,9 +95,10 @@ class TextProperties {
     }
 
     enum FontWeight {
-        // Absolute
         Normal ("normal"),
         Bold ("bold"),
+        Bolder ("bolder"),
+        Lighter ("lighter"),
         w100 ("100"),
         w200 ("200"),
         w300 ("300"),
@@ -106,21 +107,17 @@ class TextProperties {
         w600 ("600"),
         w700 ("700"),
         w800 ("800"),
-        w900 ("900"),
-        // Relative
-        Bolder ("bolder"),
-        Lighter ("lighter");
+        w900 ("900");
 
         private final String weight;
         FontWeight(String weight) {
             this.weight = weight;
         }
 
-        static boolean hasEnum(String strVal) {
-            return weightToEnum.containsKey(strVal);
-        }
-
-        static FontWeight get(String strVal) {
+        static FontWeight getEnum(String strVal) {
+            if(!weightToEnum.containsKey(strVal)) {
+                throw new IllegalArgumentException("Unknown String Value: " + strVal);
+            }
             return weightToEnum.get(strVal);
         }
 

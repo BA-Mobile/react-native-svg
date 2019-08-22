@@ -139,7 +139,7 @@ abstract public class RenderableView extends VirtualView {
                 break;
             default:
                 throw new JSApplicationIllegalArgumentException(
-                        "fillRule " + fillRule + " unrecognized");
+                        "fillRule " + this.fillRule + " unrecognized");
         }
 
         invalidate();
@@ -220,7 +220,7 @@ abstract public class RenderableView extends VirtualView {
                 break;
             default:
                 throw new JSApplicationIllegalArgumentException(
-                        "strokeLinecap " + strokeLinecap + " unrecognized");
+                        "strokeLinecap " + this.strokeLinecap + " unrecognized");
         }
         invalidate();
     }
@@ -239,7 +239,7 @@ abstract public class RenderableView extends VirtualView {
                 break;
             default:
                 throw new JSApplicationIllegalArgumentException(
-                        "strokeLinejoin " + strokeLinejoin + " unrecognized");
+                        "strokeLinejoin " + this.strokeLinejoin + " unrecognized");
         }
         invalidate();
     }
@@ -340,18 +340,19 @@ abstract public class RenderableView extends VirtualView {
             if (nonScalingStroke) {
                 Path scaled = new Path();
                 //noinspection deprecation
-                mPath.transform(mCTM, scaled);
+                mPath.transform(canvas.getMatrix(), scaled);
                 canvas.setMatrix(null);
                 path = scaled;
             }
 
-            if (computePaths || path != mPath) {
-                mBox = new RectF();
-                path.computeBounds(mBox, true);
-            }
+            RectF clientRect = new RectF();
+            path.computeBounds(clientRect, true);
+            mBox = new RectF(clientRect);
 
-            RectF clientRect = new RectF(mBox);
-            mCTM.mapRect(clientRect);
+            // We create the canvas ourselves, thus we can depend on getMatrix
+            @SuppressWarnings("deprecation")
+            Matrix svgToViewMatrix = new Matrix(canvas.getMatrix());
+            svgToViewMatrix.mapRect(clientRect);
             this.setClientRect(clientRect);
 
             clip(canvas, paint);

@@ -13,7 +13,7 @@
 
 /**
  * RNSVG nodes are implemented as base UIViews. They should be implementation for all basic
- ＊interfaces for all non-definition nodes.
+ ＊interfaces for all non-defination nodes.
  */
 
 @interface RNSVGNode : UIView
@@ -39,7 +39,6 @@ extern CGFloat const RNSVG_DEFAULT_FONT_SIZE;
 @property (nonatomic, assign) BOOL active;
 @property (nonatomic, assign) BOOL dirty;
 @property (nonatomic, assign) BOOL merging;
-@property (nonatomic, assign) BOOL skip;
 @property (nonatomic, assign) CGPathRef path;
 @property (nonatomic, assign) CGPathRef strokePath;
 @property (nonatomic, assign) CGRect clientRect;

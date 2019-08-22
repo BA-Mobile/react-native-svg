@@ -5,41 +5,41 @@ import com.facebook.react.bridge.ReadableArray;
 
 import java.util.ArrayList;
 
-class SVGLength {
-    // https://www.w3.org/TR/SVG/types.html#InterfaceSVGLength
-    public enum UnitType {
-        UNKNOWN,
-        NUMBER,
-        PERCENTAGE,
-        EMS,
-        EXS,
-        PX,
-        CM,
-        MM,
-        IN,
-        PT,
-        PC,
-    }
+// https://www.w3.org/TR/SVG/types.html#InterfaceSVGLength
+enum SVGLengthUnitType {
+    SVG_LENGTHTYPE_UNKNOWN,
+    SVG_LENGTHTYPE_NUMBER,
+    SVG_LENGTHTYPE_PERCENTAGE,
+    SVG_LENGTHTYPE_EMS,
+    SVG_LENGTHTYPE_EXS,
+    SVG_LENGTHTYPE_PX,
+    SVG_LENGTHTYPE_CM,
+    SVG_LENGTHTYPE_MM,
+    SVG_LENGTHTYPE_IN,
+    SVG_LENGTHTYPE_PT,
+    SVG_LENGTHTYPE_PC,
+}
 
+class SVGLength {
     final double value;
-    final UnitType unit;
+    final SVGLengthUnitType unit;
     private SVGLength() {
         value = 0;
-        unit = UnitType.UNKNOWN;
+        unit = SVGLengthUnitType.SVG_LENGTHTYPE_UNKNOWN;
     }
     SVGLength(double number) {
         value = number;
-        unit = UnitType.NUMBER;
+        unit = SVGLengthUnitType.SVG_LENGTHTYPE_NUMBER;
     }
     private SVGLength(String length) {
         length = length.trim();
         int stringLength = length.length();
         int percentIndex = stringLength - 1;
         if (stringLength == 0 || length.equals("normal")) {
-            unit = UnitType.UNKNOWN;
+            unit = SVGLengthUnitType.SVG_LENGTHTYPE_UNKNOWN;
             value = 0;
         } else if (length.codePointAt(percentIndex) == '%') {
-            unit = UnitType.PERCENTAGE;
+            unit = SVGLengthUnitType.SVG_LENGTHTYPE_PERCENTAGE;
             value = Double.valueOf(length.substring(0, percentIndex));
         } else {
             int twoLetterUnitIndex = stringLength - 2;
@@ -48,43 +48,43 @@ class SVGLength {
                 int end = twoLetterUnitIndex;
                 switch (lastTwo) {
                     case "px":
-                        unit = UnitType.NUMBER;
+                        unit = SVGLengthUnitType.SVG_LENGTHTYPE_NUMBER;
                         break;
 
                     case "em":
-                        unit = UnitType.EMS;
+                        unit = SVGLengthUnitType.SVG_LENGTHTYPE_EMS;
                         break;
                     case "ex":
-                        unit = UnitType.EXS;
+                        unit = SVGLengthUnitType.SVG_LENGTHTYPE_EXS;
                         break;
 
                     case "pt":
-                        unit = UnitType.PT;
+                        unit = SVGLengthUnitType.SVG_LENGTHTYPE_PT;
                         break;
 
                     case "pc":
-                        unit = UnitType.PC;
+                        unit = SVGLengthUnitType.SVG_LENGTHTYPE_PC;
                         break;
 
                     case "mm":
-                        unit = UnitType.MM;
+                        unit = SVGLengthUnitType.SVG_LENGTHTYPE_MM;
                         break;
 
                     case "cm":
-                        unit = UnitType.CM;
+                        unit = SVGLengthUnitType.SVG_LENGTHTYPE_CM;
                         break;
 
                     case "in":
-                        unit = UnitType.IN;
+                        unit = SVGLengthUnitType.SVG_LENGTHTYPE_IN;
                         break;
 
                     default:
-                        unit = UnitType.NUMBER;
+                        unit = SVGLengthUnitType.SVG_LENGTHTYPE_NUMBER;
                         end = stringLength;
                 }
                 value = Double.valueOf(length.substring(0, end));
             } else {
-                unit = UnitType.NUMBER;
+                unit = SVGLengthUnitType.SVG_LENGTHTYPE_NUMBER;
                 value = Double.valueOf(length);
             }
         }

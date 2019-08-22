@@ -51,14 +51,11 @@ abstract public class VirtualView extends ReactViewGroup {
         0, 0, 1
     };
     float mOpacity = 1f;
-    Matrix mCTM = new Matrix();
     Matrix mMatrix = new Matrix();
     Matrix mTransform = new Matrix();
-    Matrix mInvCTM = new Matrix();
     Matrix mInvMatrix = new Matrix();
     final Matrix mInvTransform = new Matrix();
     boolean mInvertible = true;
-    boolean mCTMInvertible = true;
     boolean mTransformInvertible = true;
     private RectF mClientRect;
 
@@ -71,7 +68,6 @@ abstract public class VirtualView extends ReactViewGroup {
 
     final float mScale;
     private boolean mResponsible;
-    private boolean mOnLayout;
     String mName;
 
     private SvgView svgView;
@@ -202,14 +198,11 @@ abstract public class VirtualView extends ReactViewGroup {
      * drawing code should apply opacity recursively.
      *
      * @param canvas the canvas to set up
-     * @param ctm
      */
-    int saveAndSetupCanvas(Canvas canvas, Matrix ctm) {
+    int saveAndSetupCanvas(Canvas canvas) {
         int count = canvas.save();
-        mCTM.setConcat(mMatrix, mTransform);
-        canvas.concat(mCTM);
-        mCTM.preConcat(ctm);
-        mCTMInvertible = mCTM.invert(mInvCTM);
+        canvas.concat(mMatrix);
+        canvas.concat(mTransform);
         return count;
     }
 
@@ -229,11 +222,6 @@ abstract public class VirtualView extends ReactViewGroup {
         invalidate();
     }
 
-    @ReactProp(name = "onLayout")
-    public void setOnLayout(boolean onLayout) {
-        mOnLayout = onLayout;
-        invalidate();
-    }
 
     @ReactProp(name = "mask")
     public void setMask(String mask) {
@@ -357,30 +345,30 @@ abstract public class VirtualView extends ReactViewGroup {
     }
 
     double relativeOnWidth(SVGLength length) {
-        SVGLength.UnitType unit = length.unit;
-        if (unit == SVGLength.UnitType.NUMBER){
+        SVGLengthUnitType unit = length.unit;
+        if (unit == SVGLengthUnitType.SVG_LENGTHTYPE_NUMBER){
             return length.value * mScale;
-        } else if (unit == SVGLength.UnitType.PERCENTAGE){
+        } else if (unit == SVGLengthUnitType.SVG_LENGTHTYPE_PERCENTAGE){
             return length.value / 100 * getCanvasWidth();
         }
         return fromRelativeFast(length);
     }
 
     double relativeOnHeight(SVGLength length) {
-        SVGLength.UnitType unit = length.unit;
-        if (unit == SVGLength.UnitType.NUMBER){
+        SVGLengthUnitType unit = length.unit;
+        if (unit == SVGLengthUnitType.SVG_LENGTHTYPE_NUMBER){
             return length.value * mScale;
-        } else if (unit == SVGLength.UnitType.PERCENTAGE){
+        } else if (unit == SVGLengthUnitType.SVG_LENGTHTYPE_PERCENTAGE){
             return length.value / 100 * getCanvasHeight();
         }
         return fromRelativeFast(length);
     }
 
     double relativeOnOther(SVGLength length) {
-        SVGLength.UnitType unit = length.unit;
-        if (unit == SVGLength.UnitType.NUMBER){
+        SVGLengthUnitType unit = length.unit;
+        if (unit == SVGLengthUnitType.SVG_LENGTHTYPE_NUMBER){
             return length.value * mScale;
-        } else if (unit == SVGLength.UnitType.PERCENTAGE){
+        } else if (unit == SVGLengthUnitType.SVG_LENGTHTYPE_PERCENTAGE){
             return length.value / 100 * getCanvasDiagonal();
         }
         return fromRelativeFast(length);
@@ -396,26 +384,26 @@ abstract public class VirtualView extends ReactViewGroup {
     private double fromRelativeFast(SVGLength length) {
         double unit;
         switch (length.unit) {
-            case EMS:
+            case SVG_LENGTHTYPE_EMS:
                 unit = getFontSizeFromContext();
                 break;
-            case EXS:
+            case SVG_LENGTHTYPE_EXS:
                 unit = getFontSizeFromContext() / 2;
                 break;
 
-            case CM:
+            case SVG_LENGTHTYPE_CM:
                 unit = 35.43307;
                 break;
-            case MM:
+            case SVG_LENGTHTYPE_MM:
                 unit = 3.543307;
                 break;
-            case IN:
+            case SVG_LENGTHTYPE_IN:
                 unit = 90;
                 break;
-            case PT:
+            case SVG_LENGTHTYPE_PT:
                 unit = 1.25;
                 break;
-            case PC:
+            case SVG_LENGTHTYPE_PC:
                 unit = 15;
                 break;
 
@@ -519,37 +507,34 @@ abstract public class VirtualView extends ReactViewGroup {
             return;
         }
         mClientRect = rect;
-        if (mClientRect == null || (!mResponsible && !mOnLayout)) {
+        if (mClientRect == null) {
             return;
         }
         int left = (int) Math.floor(mClientRect.left);
         int top = (int) Math.floor(mClientRect.top);
+        int right = (int) Math.ceil(mClientRect.right);
+        int bottom = (int) Math.ceil(mClientRect.bottom);
         int width = (int) Math.ceil(mClientRect.width());
         int height = (int) Math.ceil(mClientRect.height());
-        if (mResponsible) {
-            int right = (int) Math.ceil(mClientRect.right);
-            int bottom = (int) Math.ceil(mClientRect.bottom);
 
-            if (!(this instanceof GroupView)) {
-                setLeft(left);
-                setTop(top);
-                setRight(right);
-                setBottom(bottom);
-            }
-            setMeasuredDimension(width, height);
+        if (!(this instanceof GroupView)) {
+            setLeft(left);
+            setTop(top);
+            setRight(right);
+            setBottom(bottom);
         }
-        if (mOnLayout) {
-            EventDispatcher eventDispatcher = mContext
-                    .getNativeModule(UIManagerModule.class)
-                    .getEventDispatcher();
-            eventDispatcher.dispatchEvent(OnLayoutEvent.obtain(
-                    this.getId(),
-                    left,
-                    top,
-                    width,
-                    height
-            ));
-        }
+        setMeasuredDimension(width, height);
+
+        EventDispatcher eventDispatcher = mContext
+                .getNativeModule(UIManagerModule.class)
+                .getEventDispatcher();
+        eventDispatcher.dispatchEvent(OnLayoutEvent.obtain(
+                this.getId(),
+                left,
+                top,
+                width,
+                height
+        ));
     }
 
     RectF getClientRect() {

@@ -79,12 +79,6 @@
     [self setNeedsDisplay];
 }
 
-- (void)tintColorDidChange
-{
-    [self invalidate];
-    [self clearChildCache];
-}
-
 - (void)setMinX:(CGFloat)minX
 {
     if (minX == _minX) {
